@@ -25,7 +25,12 @@ public class TileMap : MonoBehaviour {
 
 	public void UpdateTexture(int x, int y)
 	{
-		tilesRow = tiles[ (int)MapInfo.GetTileType(x,y)];
+		int temp = (int)MapInfo.GetTileType (x, y);
+		if ( temp >= 8.0f )
+		{
+			temp = 7;
+		}
+		tilesRow = tiles[temp];
 		texture.SetPixels(x*tileResolution, y*tileResolution, tileResolution, tileResolution, tilesRow);
 		texture.Apply();
 	}

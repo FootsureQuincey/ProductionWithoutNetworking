@@ -16,7 +16,7 @@ using System.Collections.Generic;
 
 [RequireComponent(typeof(TileMap))]
 [RequireComponent(typeof(TileMapMouse))]
-
+//[RequireComponent(typeof(GameManager))]
 [RequireComponent(typeof(GraphSearch))]
 [RequireComponent(typeof(Graph))]
 [RequireComponent(typeof(Node))]
@@ -25,14 +25,14 @@ public class Player : MonoBehaviour
 
 	//Information needed in the game 
 	public baseCharacter mCharacter;
-	TileMap mTileMap;
+	private TileMap mTileMap;
 	TileMapMouse mMouse;
 	GameObject mTileMapObject;
 
 	//Current Stats
-	public uint mAttack;
-	public uint mDefence;
-	public uint mMovement;
+	public int mAttack;
+	public int mDefence;
+	public int mMovement;
 	public int mRange;
 	
 	//Mouse Info
@@ -49,6 +49,7 @@ public class Player : MonoBehaviour
 	public List<int>mWalkRangeIndex;
 
 	//Player Loop
+	public DTileMap.TileType mPlayerIndex;
 	bool mWalkRange;
 	bool mAttackRange;
 	//Wyatt//
@@ -68,6 +69,10 @@ public class Player : MonoBehaviour
 	// Use this for initialization
 	void Start()
 	{
+		if(mPlayerIndex==DTileMap.TileType.Floor)
+		{
+			mPlayerIndex = DTileMap.TileType.Player1;
+		}
 		mTileMapObject=GameObject.Find("CurrentTileMap");
 		mMouse = mTileMapObject.GetComponent<TileMapMouse> ();
 		mTileMap = mTileMapObject.GetComponent<TileMap>();
@@ -90,7 +95,7 @@ public class Player : MonoBehaviour
 		{
 			if(!PhotonNetwork.offlineMode)
 			{
-
+		
 				mManager = GameObject.Find ("GameManager(Clone)").GetComponent<GameManager>();
 				mManager.AddPlayer (this);//allows gamemanager to know that a new player is active
 			}
@@ -141,7 +146,6 @@ public class Player : MonoBehaviour
 			//	mMoved = false;
 			//	break;
 			case 0:
-				
 				Debug.Log ("Target::Walkable");
 				mTileMap.MapInfo.SetTileType(mPositionX,mPositionY, DTileMap.TileType.Floor);
 				Vector3 v3Temp = mTileMap.MapInfo.GetTileLocation(mMouseX, mMouseY);
@@ -149,7 +153,7 @@ public class Player : MonoBehaviour
 				PathFind (mPositionX, mPositionY, mMouseX, mMouseY);
 				mPositionX=mMouseX;
 				mPositionY=mMouseY;
-				mTileMap.MapInfo.SetTileType(mPositionX,mPositionY, DTileMap.TileType.Player);
+				mTileMap.MapInfo.SetTileType(mPositionX,mPositionY,mPlayerIndex);
 				mMoved = true;
 				//ResetWalkRange();
 				mWalkRange = false;
@@ -157,6 +161,47 @@ public class Player : MonoBehaviour
 			case 2:
 				Debug.Log ("Target::Wall");
 				mMoved = false;
+				break;
+			case 3:
+				break;
+			case 4:
+				break;
+			case 5:
+				break;
+			case 6:
+				mManager.curAttacking = (int)mPlayerIndex -6;
+				mManager.curDefending = 6-6;
+				Debug.Log("Player1");
+				break;
+			case 7:
+				mManager.curAttacking = (int)mPlayerIndex -6;
+				mManager.curDefending = 7-6;
+				Debug.Log("Player2");
+				break;
+			case 8:
+				mManager.curAttacking = (int)mPlayerIndex -6;
+				mManager.curDefending = 8-6;
+				Debug.Log("Player3");
+				break;
+			case 9:
+				mManager.curAttacking = (int)mPlayerIndex -6;
+				mManager.curDefending = 9-6;
+				Debug.Log("Player4");
+				break;
+			case 10:
+				mManager.curAttacking = (int)mPlayerIndex -6;
+				mManager.curDefending = 10-6;
+				Debug.Log("Target1");
+				break;
+			case 11:
+				mManager.curAttacking = (int)mPlayerIndex -6;
+				mManager.curDefending = 11-6;
+				Debug.Log("Target2");
+				break;
+			case 12:
+				mManager.curAttacking = (int)mPlayerIndex -6;
+				mManager.curDefending = 12-6;
+				Debug.Log("Target3");
 				break;
 			default:
 				//Debug.Log ("Target::Default");
@@ -183,7 +228,7 @@ public class Player : MonoBehaviour
 		}
 		foreach(Node i in mPath)
 		{
-			mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Player);
+			mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Path);
 		}
 	}	
 	void ResetPath()

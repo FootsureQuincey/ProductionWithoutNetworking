@@ -20,13 +20,6 @@ public class DTileMap
 	//<<<<<<<<<<<<<<<<<<<
 	int size_x;
 	int size_y;
-	
-
-	//public struct V2
-	//{
-	//	public float x;
-	//	public float y;
-	//}
 
 	public Vector3[] mPositionData;
 
@@ -36,13 +29,17 @@ public class DTileMap
 	{
 		Floor,		//0
 		Walkable,	//1
-		Wall,		//2
-		Path,		//3
-		Player,		//4
-		Target,		//5		
-		Guard,		//6
-		Shop,		//7
-		Buildings	//8
+		Path,		//2
+		Wall,		//3
+		Shop,		//4
+		Buildings,	//5		
+		Player1,	//6
+		Player2,   	//7
+		Player3,	//8
+		Player4,	//9
+    	Target1,	//10
+		Target2,	//11
+		Target3		//12
 	};
 	public void CreateMap(int sizex, int sizey)
 	{
@@ -60,7 +57,6 @@ public class DTileMap
 		startLocation.z = 0.5f;	
 		
 		mPositionData = new Vector3[sizex*sizey];
-		
 		for(int y=0;y<sizey;y++)
 		{
 			for(int x=0;x<sizex;x++) 
@@ -89,7 +85,6 @@ public class DTileMap
 				}
 			}
 		}
-		map_data [1] = (int)TileType.Wall;
 	}
 	public DTileMap(int sizex, int sizey)
 	{

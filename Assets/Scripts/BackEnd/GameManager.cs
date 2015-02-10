@@ -14,6 +14,10 @@ public class GameManager : MonoBehaviour
 	public Player[] sPlayers;
 	public BaseTarget[] sTargets;
 
+	public int curAttacking;
+	public int curDefending;
+
+
 	private bool newPlayerAdded = false;
 	//Call this to restart the lobby
 	public void Init()
