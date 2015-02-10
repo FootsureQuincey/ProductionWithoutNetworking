@@ -18,8 +18,8 @@ public class DTileMap
 
 	//>>>>>>>>>>>>>>>>>>>
 	//<<<<<<<<<<<<<<<<<<<
-	int size_x;
-	int size_y;
+	public int size_x;
+	public int size_y;
 
 	public Vector3[] mPositionData;
 
@@ -99,6 +99,12 @@ public class DTileMap
 	}
 	public TileType GetTileType(int x, int y)
 	{
+		return (TileType)map_data[(y*size_x)+x];
+	}
+	public TileType GetTileTypeIndex(int index)
+	{
+		int x= 0, y = 0;
+		IndexToXY (index,out x, out y);
 		return (TileType)map_data[(y*size_x)+x];
 	}
 	public void SetTileType(int x, int y, TileType t)
