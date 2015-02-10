@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
 				sPlayersInRoom++;
 			}
 		}
+		//
 		Debug.Log(sPlayersInRoom);
 		newPlayerAdded = rc;
 		return rc;

@@ -28,7 +28,7 @@ public class GraphSearch
 		mGraph = graph;
 		mFound = false;
 	}
-	public void Run(int startX, int startY, int endX, int endY)
+	public void Run(int startX, int startY, int endX, int endY, int range)
 	{
 		mOpenList = new List<Node>();
 		mCloseList = new List<Node>();
@@ -53,7 +53,14 @@ public class GraphSearch
 
 		while (done==false && mOpenList.Count!=0) 
 		{
-			Node node = GetNextNode();
+			Node node = GetNextNode(range);
+			//if(range==-1)
+			//{
+			//}
+			//else
+			//{
+			//	node = GetNextNode(range);
+			//}
 			if(node == endNode)
 			{
 				done = true;
@@ -76,19 +83,19 @@ public class GraphSearch
 		}
 
 	}
-	//A* code//
-	public Node GetNextNode()
+	// code//
+	public Node GetNextNode(float lowestCost = 99999.99f)
 	{
 		Node lowestIter;
 		lowestIter = null;
-		float lowestCost = 99999.99f;	//just equal to FLT_MAX
+		//float lowestCost = 99999.99f;	//just equal to FLT_MAX
 		foreach (Node i in mOpenList)
 		{
 			Node node = i;
-			float f = node.g + node.h;
-			if(f<lowestCost)
+
+			if(node.g < lowestCost)
 			{
-				lowestCost = f;
+				lowestCost = node.g;
 				lowestIter = i;
 			}
 		}
@@ -101,11 +108,9 @@ public class GraphSearch
 		if(!neighbor.close)
 		{
 			float g = node.g + 1.0f;
-			float h = 1.0f;
 			if(!neighbor.open)
 			{
 				neighbor.g = g;
-				neighbor.h = h;
 				neighbor.mParent = node;
 				mOpenList.Add (neighbor);
 				neighbor.open = true;
@@ -113,7 +118,6 @@ public class GraphSearch
 			else if(g < neighbor.g)
 			{
 				neighbor.g = g;
-				neighbor.h = h;
 				neighbor.mParent = node;
 			}
 		}
