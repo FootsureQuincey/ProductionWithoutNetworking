@@ -31,7 +31,7 @@ public class BaseTarget : MonoBehaviour
 	private int mPositionY;		//Current Position
 	private int mMouseX;		//Mouse Location
 	private int mMouseY;		//Mouse Location
-
+	private DTileMap.TileType mTargetIndex;
 	//Network Stuff
 	GameManager mManager;
 	public bool mTargetTurn;
@@ -92,7 +92,10 @@ public class BaseTarget : MonoBehaviour
 
 	void Start () 
 	{
-
+		if(mTargetIndex==DTileMap.TileType.Floor)
+		{
+			mTargetIndex = DTileMap.TileType.Target1;
+		}
 		firstTime = true;
 		mWalkPathTrue = false;
 		mRunPathTrue = false;
@@ -191,9 +194,9 @@ public class BaseTarget : MonoBehaviour
 		int tempX = 0;
 		int tempY = 0;
 		mTileMap.MapInfo.IndexToXY (index, out tempX, out tempY);
-		Travel (tempX, tempY);
 		//Reset currentPath
 		ResetPath (ref mCurrentPath);
+		Travel (tempX, tempY);
 		if(mPositionX == mTowardNodeX && mPositionY == mTowardNodeY)
 		{
 			ResetPath (ref mTowardPath);
@@ -324,7 +327,7 @@ public class BaseTarget : MonoBehaviour
 			Path= mSearch.GetPathList();
 			foreach(Node i in Path)
 			{
-				mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Target);
+				mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Path);
 			}
 		}
 		else
@@ -375,18 +378,18 @@ public class BaseTarget : MonoBehaviour
 		for (int i=0; i<Path.Count; i++)
 		{
 			int x = Path[i].mIndex;
-			mTileMap.MapInfo.SetTileTypeIndex (x,0);
+			mTileMap.MapInfo.SetTileTypeIndex (x,DTileMap.TileType.Floor);
 		}
 		Path.Clear ();
 	}
 	void Travel(int x, int y)
 	{
-		mTileMap.MapInfo.SetTileType(mPositionX, mPositionY, 0);
+		mTileMap.MapInfo.SetTileType(mPositionX, mPositionY, DTileMap.TileType.Floor);
 		Vector3 v3Temp = mTileMap.MapInfo.GetTileLocation(x, y);		
 		Move(v3Temp);
 		mPositionX = x;
 		mPositionY = y;
-		mTileMap.MapInfo.SetTileType(mPositionX, mPositionY, DTileMap.TileType.Target);
+		mTileMap.MapInfo.SetTileType(mPositionX, mPositionY, mTargetIndex);
 	}
 	void Move(Vector3 pos)
 	{

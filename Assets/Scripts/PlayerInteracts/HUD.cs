@@ -11,7 +11,14 @@ public class HUD : MonoBehaviour
 	public GUITexture bar, backbar, turns, stats;
 	public GUITexture combar, atkbar, defbar, atkprt, defprt, cardslots;
 	public GUIText str, def, mov, inf;
-	
+
+	//Jack
+	//So the ints are player 0,1,2,3
+	// and the targets are 4,5,6,7,8
+	//public int curAttacking;
+	//public int curDefending;
+	//I made these two varible in the manager, so just grab the number there(default to be -1 if nothing is happening)
+	//--------------------//
 	//privates
 	private int decksize, cdel;
 	private baseCharacter ch;
