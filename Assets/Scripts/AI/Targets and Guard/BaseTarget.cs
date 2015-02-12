@@ -320,7 +320,7 @@ public class BaseTarget : MonoBehaviour
 	{
 		List<Node> Path = null;
 		GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
-		mSearch.Run(startX, startY, endX, endY, -1);
+		mSearch.PathFind(startX, startY, endX, endY);
 		if(mSearch.IsFound())
 		{
 			//mCloseList = mSearch.GetCloseList();

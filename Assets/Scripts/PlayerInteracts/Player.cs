@@ -32,22 +32,22 @@ public class Player : MonoBehaviour
 	private TileMap mTileMap;						//TileMap information
 	TileMapMouse mMouse;							//Current Mouse information
 	GameObject mTileMapObject;						//TileMap Object
-							   		
+	
 	//Current Stats					
 	public int mAttack;								//Current Player Attack
 	public int mDefence;							//Current Player Defence
 	public int mMovement;							//Current Player Movment
 	public int mRange;								//Current Player Attack Range
 	public int mInfamy = 0;							//Current Player Infamy
-
+	
 	//Mouse Info			   		
 	private int mMouseX;							//MouseOnTile info on X
 	private int mMouseY;							//MouseOnTile info on Y
-							   		
+	
 	//Tracking current Spot//  		
 	public int mPositionX;							//Current TileMap Position X
 	public int mPositionY;							//Current TileMap Position Y
-							   		
+	
 	//List to Track Graph	  		
 	public List<Node>mCloseList;					//List for finding walking range
 	public List<Node>mPath;							//List for the actual path for player
@@ -55,7 +55,7 @@ public class Player : MonoBehaviour
 	
 	//Player Loop
 	public DTileMap.TileType mPlayerIndex;			//Current Player information
-
+	
 	//Wyatt//
 	//stuff I am using for Game Loop
 	public bool mMoved;
@@ -107,6 +107,9 @@ public class Player : MonoBehaviour
 			}
 		}
 		//Updating the Current Mouse Information
+		//Travel (mPositionX, mPositionY);
+		Debug.Log ("mPositionX = "+mPositionX);
+		Debug.Log ("mPositionY = "+mPositionY);
 		mMouse = mTileMapObject.GetComponent<TileMapMouse> ();
 		mTileMap = mTileMapObject.GetComponent<TileMap>();
 		mMouseX = mMouse.mMouseHitX;
@@ -137,90 +140,33 @@ public class Player : MonoBehaviour
 	}
 	public void FindWalkRange()
 	{
-		int tempMapX = mTileMap.size_x;
-		int tempMapY = mTileMap.size_z;
-		int tempMaxX = tempMapX - mRange;
-		int tempMinX = 0 + mRange;
-		int tempMaxY = tempMapX - mRange;
-		int tempMinY = 0 + mRange;
-		if(mPositionX >= tempMinX)
+		GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
+		mSearch.RangeSearch(mPositionX, mPositionY, mMovement);
+		mCloseList = mSearch.GetCloseList();
+		foreach(Node i in mCloseList)
 		{
-			GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
-			mSearch.Run(mPositionX, mPositionY, mPositionX-mRange, mPositionY, mRange);
-			if(mSearch.IsFound())
+			int index = i.mIndex;
+			DTileMap.TileType temp = mTileMap.MapInfo.GetTileTypeIndex(index);
+			if(temp==DTileMap.TileType.Floor)
 			{
-				mCloseList = mSearch.GetCloseList();
-				mPath= mSearch.GetPathList();
-			}
-			foreach(Node i in mCloseList)
-			{
-				int index = i.mIndex;
-				DTileMap.TileType temp = mTileMap.MapInfo.GetTileTypeIndex(index);
-				if(temp==DTileMap.TileType.Floor)
-				{
-					mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
-				}
-			}
+				mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
+			}		
 		}
-		if(mPositionY >= tempMinY)
+	}
+	public void FindAttackRange()
+	{
+		GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
+		mSearch.RangeSearch(mPositionX, mPositionY, mRange);
+		mCloseList = mSearch.GetCloseList();
+		foreach(Node i in mCloseList)
 		{
-			GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
-			mSearch.Run(mPositionX, mPositionY, mPositionX, mPositionY - mRange, mRange);
-			if(mSearch.IsFound())
+			int index = i.mIndex;
+			DTileMap.TileType temp = mTileMap.MapInfo.GetTileTypeIndex(index);
+			if(temp==DTileMap.TileType.Floor)
 			{
-				mCloseList = mSearch.GetCloseList();
-				mPath= mSearch.GetPathList();
-			}
-			foreach(Node i in mCloseList)
-			{
-				int index = i.mIndex;
-				DTileMap.TileType temp = mTileMap.MapInfo.GetTileTypeIndex(index);
-				if(temp==DTileMap.TileType.Floor)
-				{
-					mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
-				}
-			}
+				mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
+			}		
 		}
-		if(mPositionX <= tempMaxX)
-		{
-			GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
-			mSearch.Run(mPositionX, mPositionY, mPositionX + mRange, mPositionY, mRange);
-			if(mSearch.IsFound())
-			{
-				mCloseList = mSearch.GetCloseList();
-				mPath= mSearch.GetPathList();
-			}
-			foreach(Node i in mCloseList)
-			{
-				int index = i.mIndex;
-				DTileMap.TileType temp = mTileMap.MapInfo.GetTileTypeIndex(index);
-				if(temp==DTileMap.TileType.Floor)
-				{
-					mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
-				}
-			}
-		}
-		if(mPositionY <= tempMaxY)
-		{
-			GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
-			mSearch.Run(mPositionX, mPositionY, mPositionX, mPositionY + mRange, mRange);
-			if(mSearch.IsFound())
-			{
-				mCloseList = mSearch.GetCloseList();
-				mPath= mSearch.GetPathList();
-			}
-			foreach(Node i in mCloseList)
-			{
-				int index = i.mIndex;
-				DTileMap.TileType temp = mTileMap.MapInfo.GetTileTypeIndex(index);
-				if(temp==DTileMap.TileType.Floor)
-				{
-					mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
-				}
-			}
-		}
-
-
 	}
 	public bool UpdatePlayer()
 	{
@@ -230,8 +176,9 @@ public class Player : MonoBehaviour
 		//}
 		if (Input.GetMouseButtonDown (0))
 		{
-			//ResetPath();
+			
 			DTileMap.TileType temp=mTileMap.MapInfo.GetTileType(mMouseX, mMouseY);
+			ResetPath();
 			switch((int)temp)
 			{
 				//case 0:
@@ -240,13 +187,7 @@ public class Player : MonoBehaviour
 				//	break;
 			case 0:
 				Debug.Log ("Target::Walkable");
-				mTileMap.MapInfo.SetTileType(mPositionX,mPositionY, DTileMap.TileType.Floor);
-				Vector3 v3Temp = mTileMap.MapInfo.GetTileLocation(mMouseX, mMouseY);
-				Move(v3Temp);
-				PathFind (mPositionX, mPositionY, mMouseX, mMouseY);
-				mPositionX=mMouseX;
-				mPositionY=mMouseY;
-				mTileMap.MapInfo.SetTileType(mPositionX,mPositionY,mPlayerIndex);
+				Travel (mMouseX, mMouseY);
 				mMoved = true;
 				//ResetWalkRange();
 				//mWalkRange = false;
@@ -304,7 +245,16 @@ public class Player : MonoBehaviour
 		}
 		return true;
 	}
-	
+	void Travel(int TileX, int TileY)
+	{
+		mTileMap.MapInfo.SetTileType(mPositionX,mPositionY, DTileMap.TileType.Floor);
+		Vector3 v3Temp = mTileMap.MapInfo.GetTileLocation(TileX, TileY);
+		Move(v3Temp);
+		PathFind (mPositionX, mPositionY, TileX, TileY);
+		mPositionX=TileX;
+		mPositionY=TileY;
+		mTileMap.MapInfo.SetTileType(mPositionX,mPositionY,mPlayerIndex);
+	}
 	void Move(Vector3 pos)
 	{
 		gameObject.transform.position = pos + new Vector3(0.0f, 1.0f, 0.0f);
@@ -313,7 +263,7 @@ public class Player : MonoBehaviour
 	void PathFind(int startX, int startY, int endX, int endY)
 	{
 		GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
-		mSearch.Run(startX, startY, endX, endY, -1);
+		mSearch.PathFind(startX, startY, endX, endY);
 		if(mSearch.IsFound())
 		{
 			mCloseList = mSearch.GetCloseList();
@@ -323,7 +273,7 @@ public class Player : MonoBehaviour
 		{
 			mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Path);
 		}
-
+		
 	}	
 	void ResetPath()
 	{
@@ -334,9 +284,9 @@ public class Player : MonoBehaviour
 		for (int i=0; i<mCloseList.Count; i++)
 		{
 			int x = mCloseList[i].mIndex;
-			mTileMap.MapInfo.SetTileTypeIndex (x,DTileMap.TileType.Floor);
+			mTileMap.MapInfo.SetTileTypeIndex (x, DTileMap.TileType.Floor);
 		}
-
+		
 	}
 	//added this to try to fix some issues
 	void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

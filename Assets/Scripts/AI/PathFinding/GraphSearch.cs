@@ -28,7 +28,49 @@ public class GraphSearch
 		mGraph = graph;
 		mFound = false;
 	}
-	public void Run(int startX, int startY, int endX, int endY, int range)
+	//Serpeate the Run Function into PathFind and RangeSearch
+	public void RangeSearch(int startX, int startY, int range)
+	{
+		mOpenList = new List<Node>();
+		mCloseList = new List<Node>();
+		mPath = new List<Node>();
+		
+		Node startNode = mGraph.GetNodeInfo (startX, startY);
+		//Reset graph Node
+		mGraph.ResetNodes();
+		//Add start Node to open List
+		mOpenList.Add (startNode);
+		startNode.open = true;
+		//Search//
+		
+		while (mOpenList.Count!=0) 
+		{
+			Node node = GetNextNode();
+			//if(range==-1)
+			//{
+			//}
+			//else
+			//{
+			//	node = GetNextNode(range);
+			//}
+			for(int n = 0; n < 4; ++n)
+			{
+				Node neighbor = node.mNeighbors[n];
+				if(neighbor!=null && neighbor.walkable==true)
+				{
+					ExpandNode(node, neighbor);
+				}
+			
+			}
+			if(node.g == range + 1)
+			{
+				break;
+			}
+				mCloseList.Add (node);
+				node.close = true;
+		}
+}
+	public void PathFind(int startX, int startY, int endX, int endY)
 	{
 		mOpenList = new List<Node>();
 		mCloseList = new List<Node>();
@@ -53,7 +95,7 @@ public class GraphSearch
 
 		while (done==false && mOpenList.Count!=0) 
 		{
-			Node node = GetNextNode(range);
+			Node node = GetNextNode();
 			//if(range==-1)
 			//{
 			//}
@@ -81,14 +123,13 @@ public class GraphSearch
 			mCloseList.Add (node);
 			node.close = true;
 		}
-
 	}
 	// code//
-	public Node GetNextNode(float lowestCost = 99999.99f)
+	public Node GetNextNode()
 	{
 		Node lowestIter;
 		lowestIter = null;
-		//float lowestCost = 99999.99f;	//just equal to FLT_MAX
+		float lowestCost = 99999.99f;	//just equal to FLT_MAX
 		foreach (Node i in mOpenList)
 		{
 			Node node = i;
