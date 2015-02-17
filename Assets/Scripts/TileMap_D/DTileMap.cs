@@ -31,7 +31,7 @@ public class DTileMap
 		Walkable,	//1
 		Path,		//2
 		Wall,		//3
-		Shop,		//4
+		Sewer,		//4
 		Buildings,	//5		
 		Player1,	//6
 		Player2,   	//7
