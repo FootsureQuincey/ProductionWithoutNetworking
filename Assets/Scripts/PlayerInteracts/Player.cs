@@ -49,9 +49,9 @@ public class Player : MonoBehaviour
 	public int mPositionY;							//Current TileMap Position Y
 	
 	//List to Track Graph	  		
-	public List<Node>mCloseList;					//List for finding walking range
+	public List<Node>mWalkRangeList;				//List for finding walking range
 	public List<Node>mPath;							//List for the actual path for player
-	public List<int>mWalkRangeIndex;
+	public List<Node>mAttackRangeList;				//List for finding walking range
 	
 	//Player Loop
 	public DTileMap.TileType mPlayerIndex;			//Current Player information
@@ -86,7 +86,6 @@ public class Player : MonoBehaviour
 		//mHand = new Hand();
 		//mDeck = new Deck ();
 		Debug.Log ("Player Created");
-		mWalkRangeIndex = new List<int> ();
 		//mTileMap.MapInfo.SetTileType(0, 0, 4);
 	}
 	void Update()
@@ -108,8 +107,8 @@ public class Player : MonoBehaviour
 		}
 		//Updating the Current Mouse Information
 		//Travel (mPositionX, mPositionY);
-		Debug.Log ("mPositionX = "+mPositionX);
-		Debug.Log ("mPositionY = "+mPositionY);
+		//Debug.Log ("mPositionX = "+mPositionX);
+		//Debug.Log ("mPositionY = "+mPositionY);
 		mMouse = mTileMapObject.GetComponent<TileMapMouse> ();
 		mTileMap = mTileMapObject.GetComponent<TileMap>();
 		mMouseX = mMouse.mMouseHitX;
@@ -142,8 +141,8 @@ public class Player : MonoBehaviour
 	{
 		GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
 		mSearch.RangeSearch(mPositionX, mPositionY, mMovement);
-		mCloseList = mSearch.GetCloseList();
-		foreach(Node i in mCloseList)
+		mWalkRangeList = mSearch.GetCloseList();
+		foreach(Node i in mWalkRangeList)
 		{
 			int index = i.mIndex;
 			DTileMap.TileType temp = mTileMap.MapInfo.GetTileTypeIndex(index);
@@ -157,8 +156,8 @@ public class Player : MonoBehaviour
 	{
 		GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
 		mSearch.RangeSearch(mPositionX, mPositionY, mRange);
-		mCloseList = mSearch.GetCloseList();
-		foreach(Node i in mCloseList)
+		mAttackRangeList = mSearch.GetCloseList();
+		foreach(Node i in mAttackRangeList)
 		{
 			int index = i.mIndex;
 			DTileMap.TileType temp = mTileMap.MapInfo.GetTileTypeIndex(index);
@@ -178,69 +177,20 @@ public class Player : MonoBehaviour
 		{
 			
 			DTileMap.TileType temp=mTileMap.MapInfo.GetTileType(mMouseX, mMouseY);
-			ResetPath();
-			switch((int)temp)
+			Travel (mMouseX, mMouseY);
+			Debug.Log ("Click 1");
+			if (Input.GetMouseButtonDown (0))
 			{
-				//case 0:
-				//	Debug.Log ("Target::Floor(out of range)");
-				//	mMoved = false;
-				//	break;
-			case 0:
-				Debug.Log ("Target::Walkable");
-				Travel (mMouseX, mMouseY);
-				mMoved = true;
-				//ResetWalkRange();
-				//mWalkRange = false;
-				break;
-			case 2:
-				Debug.Log ("Target::Wall");
-				mMoved = false;
-				break;
-			case 3:
-				break;
-			case 4:
-				break;
-			case 5:
-				break;
-			case 6:
-				mManager.curAttacking = (int)mPlayerIndex -6;
-				mManager.curDefending = 6-6;
-				Debug.Log("Player1");
-				break;
-			case 7:
-				mManager.curAttacking = (int)mPlayerIndex -6;
-				mManager.curDefending = 7-6;
-				Debug.Log("Player2");
-				break;
-			case 8:
-				mManager.curAttacking = (int)mPlayerIndex -6;
-				mManager.curDefending = 8-6;
-				Debug.Log("Player3");
-				break;
-			case 9:
-				mManager.curAttacking = (int)mPlayerIndex -6;
-				mManager.curDefending = 9-6;
-				Debug.Log("Player4");
-				break;
-			case 10:
-				mManager.curAttacking = (int)mPlayerIndex -6;
-				mManager.curDefending = 10-6;
-				Debug.Log("Target1");
-				break;
-			case 11:
-				mManager.curAttacking = (int)mPlayerIndex -6;
-				mManager.curDefending = 11-6;
-				Debug.Log("Target2");
-				break;
-			case 12:
-				mManager.curAttacking = (int)mPlayerIndex -6;
-				mManager.curDefending = 12-6;
-				Debug.Log("Target3");
-				break;
-			default:
-				//Debug.Log ("Target::Default");
-				mMoved = false;
-				break;
+				FindWalkRange();
+				Debug.Log ("Click 2");
+				if(Input.GetMouseButtonDown (0))
+				{
+					Debug.Log ("Click 3");
+					if(Input.GetMouseButtonDown (0))
+					{
+						Debug.Log ("Click 4");
+					}
+				}
 			}
 		}
 		return true;
@@ -266,7 +216,6 @@ public class Player : MonoBehaviour
 		mSearch.PathFind(startX, startY, endX, endY);
 		if(mSearch.IsFound())
 		{
-			mCloseList = mSearch.GetCloseList();
 			mPath= mSearch.GetPathList();
 		}
 		foreach(Node i in mPath)
@@ -278,12 +227,13 @@ public class Player : MonoBehaviour
 	void ResetPath()
 	{
 		if (mPath == null) 
+
 		{
 			return;
 		}
-		for (int i=0; i<mCloseList.Count; i++)
+		for (int i=0; i<mPath.Count; i++)
 		{
-			int x = mCloseList[i].mIndex;
+			int x = mPath[i].mIndex;
 			mTileMap.MapInfo.SetTileTypeIndex (x, DTileMap.TileType.Floor);
 		}
 		
