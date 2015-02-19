@@ -28,13 +28,18 @@ public class Player : MonoBehaviour
 {
 	public enum PlayerPhase
 	{
-		One,
-		Two,
-		Three,
-		Four
+		Start,
+		Move,
+		Play,
+		Attack,
+		End
 	};
+	public enum MovePhase
+	{
+
+	}
 	//Information needed in the game 
-	public baseCharacter mCharacter;				//Character base stats
+	public BaseCharacter mCharacter;				//Character base stats
 	private TileMap mTileMap;						//TileMap information
 	TileMapMouse mMouse;							//Current Mouse information
 	GameObject mTileMapObject;						//TileMap Object
@@ -49,7 +54,8 @@ public class Player : MonoBehaviour
 	//Mouse Info			   		
 	private int mMouseX;							//MouseOnTile info on X
 	private int mMouseY;							//MouseOnTile info on Y
-	
+	public int curTarget;
+
 	//Tracking current Spot//
 	public int mPrevPositionX;						//Previous TileMap Position X
 	public int mPrevPositionY;                  	//Previous TileMap Position Y
@@ -60,13 +66,17 @@ public class Player : MonoBehaviour
 	public List<Node>mWalkRangeList;				//List for finding walking range
 	public List<Node>mPath;							//List for the actual path for player
 	public List<Node>mAttackRangeList;				//List for finding walking range
-	
+	public List<Node>mAttackList;
 	//Player Loop
 	public DTileMap.TileType mPlayerIndex;			//Current Player information
 	private PlayerPhase mPlayerPhase;
+	public bool mMoved;
+	public bool mPlayed;
+	public bool mTurn;
+
 
 	//Wyatt: Network//
-	public bool mMoved;
+
 	public Hand mHand;
 	public bool mAttacked;
 	private Vector3 syncEndPosition = Vector3.zero;
@@ -91,15 +101,11 @@ public class Player : MonoBehaviour
 		mMouse = mTileMapObject.GetComponent<TileMapMouse> ();
 		mMouseX = mMouse.mMouseHitX;
 		mMouseY = mMouse.mMouseHitY;
-
-
-
-		//instantiates the objects in this object
+		//
+		mPlayerPhase = PlayerPhase.Start;
 		mMoved = false;
-		//mHand = new Hand();
-		//mDeck = new Deck ();
-
-
+		mPlayed = false;
+		mTurn = true;
 		Debug.Log ("Player: Created");
 	}
 	void Update()
@@ -126,11 +132,6 @@ public class Player : MonoBehaviour
 		mMouseY = mMouse.mMouseHitY;
 		//Put Player on Map at Starting Position
 		Teleport (mPositionX, mPositionY);
-
-
-
-
-
 		//Quick button checks
 
 		//Update the whole player function
@@ -170,6 +171,105 @@ public class Player : MonoBehaviour
 			Teleport (mPrevPositionX, mPrevPositionY);
 		}
 	}
+
+	public bool UpdatePlayer()
+	{
+		switch (mPlayerPhase)
+		{
+			case PlayerPhase.Start:
+			UpdateStart ();
+				break;
+			case PlayerPhase.Move:
+				break;
+			case PlayerPhase.Attack:
+				break;
+			case PlayerPhase.Play:
+				break;
+			case PlayerPhase.End:
+				break;
+			default:
+				Debug.Log ("Player:Unknown state!");
+				break;
+		}
+		return true;
+	}
+	void UpdateStart ()
+	{
+		//Debug.Log ("Player::StateStart");
+		if(mMoved==false)
+		{
+			FindWalkRange ();	//FInd all walkable Tiles
+		}
+		if (Input.GetMouseButtonDown (0))
+		{
+			Debug.Log("Player::FirstClick");
+			DTileMap.TileType temp=mTileMap.MapInfo.GetTileType(mMouseX, mMouseY);
+			switch((int)temp)
+			{
+			case 0:
+				Debug.Log ("Player::Floor(out of range)");
+				break;
+			case 1:
+				Debug.Log ("Player::Walkable");
+				if(mMoved == false)
+				{
+					int tempx = mMouseX;
+					int tempy = mMouseY;
+					PathFind( mPositionX, mPositionY, mMouseX, mMouseY);
+					if (Input.GetMouseButtonDown (0)&& tempx == mMouseX && tempy == mMouseY)
+					{
+						mPlayerPhase = PlayerPhase.Move;
+						Debug.Log ("Player::StateMove");
+					}
+				}
+				break;			
+			case 2:
+				Debug.Log ("Player::Path");
+				break;
+			case 3:
+				Debug.Log ("Player::Wall");
+				break;
+			case 4:
+				Debug.Log ("Player::Sewer");
+				break;
+			case 5:
+				Debug.Log ("Player::Building");
+				break;
+			case 6:
+				Debug.Log ("Player::Player1");
+				break;
+			case 7:
+				Debug.Log ("Player::Player2");
+				break;
+			case 8:
+				Debug.Log ("Player::Player3");
+				break;
+			case 9:
+				Debug.Log ("Player::Player4");
+				break;
+			case 10:
+				Debug.Log ("Player::Target1");
+				break;
+			case 11:
+				Debug.Log ("Player::Target2");
+				break;
+			case 12:
+				Debug.Log ("Player::Target3");
+				break;
+			case 13:			//Transfer to Sewer EndTurn
+				Debug.Log ("Player::TrueSewer");
+
+				break;
+			case 14:			//Nothing Happen
+				Debug.Log ("Player::TargetSpot");
+				break;
+			}
+		}
+	}
+	void UpdateMove()
+	{
+
+	}
 	public void FindWalkRange()
 	{
 		GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
@@ -182,7 +282,11 @@ public class Player : MonoBehaviour
 			if(temp==DTileMap.TileType.Floor)
 			{
 				mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
-			}		
+			}
+			if(temp==DTileMap.TileType.Sewer)
+			{
+				mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
+			}
 		}
 	}
 	public void FindAttackRange()
@@ -200,25 +304,6 @@ public class Player : MonoBehaviour
 			}		
 		}
 	}
-	public bool UpdatePlayer()
-	{
-		switch (mPlayerPhase)
-		{
-		case PlayerPhase.One:
-			break;
-		case PlayerPhase.Two:
-			break;
-		case PlayerPhase.Three:
-			break;
-		case PlayerPhase.Four:
-			break;
-		default:
-			Debug.Log ("Unknown state!");
-			break;
-		}
-		return true;
-	}
-
 	void Travel(int TileX, int TileY)
 	{
 		mTileMap.MapInfo.SetTileType(mPositionX,mPositionY, DTileMap.TileType.Floor);
@@ -239,6 +324,7 @@ public class Player : MonoBehaviour
 	
 	void PathFind(int startX, int startY, int endX, int endY)
 	{
+		ResetPath ();
 		GraphSearch mSearch= new GraphSearch(mTileMap.MapInfo.mGraph);
 		mSearch.PathFind(startX, startY, endX, endY);
 		if(mSearch.IsFound())
@@ -249,7 +335,7 @@ public class Player : MonoBehaviour
 		{
 			mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Path);
 		}
-		
+		mTileMap.MapInfo.SetTileTypeIndex (mPath[0].mIndex, mPlayerIndex);
 	}
 	//Reset all Path back to Walkable
 	void ResetPath()
@@ -262,11 +348,12 @@ public class Player : MonoBehaviour
 		{
 			int x = mPath[i].mIndex;
 			DTileMap.TileType tempType = mTileMap.MapInfo.GetTileTypeIndex (x);
-			if(tempType == DTileMap.TileType.Path)
+			if(tempType == DTileMap.TileType.Path|| tempType == mPlayerIndex)
 			{
 				mTileMap.MapInfo.SetTileTypeIndex (x, DTileMap.TileType.Walkable);
 			}
 		}
+
 		mPath.Clear ();
 	}
 	void ResetWalkRange()

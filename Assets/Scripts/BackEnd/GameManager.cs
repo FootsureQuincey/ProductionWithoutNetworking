@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour
     {
 		if(p)
 		{
-			if(!p.mMoved)
+			if(!p.mTurn)
 			{
 				if(PhotonNetwork.offlineMode)
 				{
@@ -115,7 +115,7 @@ public class GameManager : MonoBehaviour
 					if(p.networkView.isMine)
 					{
 						p.UpdatePlayer();
-						//Debug.Log(sPlayersTurn);
+						Debug.Log("Hi");
 					}
 				}
 			}
@@ -123,6 +123,8 @@ public class GameManager : MonoBehaviour
 			{
 				p.mAttacked = false;
 				p.mMoved = false;
+				p.mPlayed = false;
+				p.mTurn = false;
 				//p.mHand.PlayedCard = false;
 				sPlayersTurn++;
 				Debug.Log(sPlayersTurn);

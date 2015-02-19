@@ -4,7 +4,7 @@
 //Jan 8th, 2015
 
 
-public class baseCharacter
+public class BaseCharacter
 {
 	public string mCharacterName;
 	public int mInputAttack;

@@ -21,7 +21,7 @@ public class HUD : MonoBehaviour
 	//--------------------//
 	//privates
 	private int decksize, cdel;
-	private baseCharacter ch;
+	private BaseCharacter ch;
 	private GameObject[] discard = new GameObject[10];
 	private GameObject[] cards = new GameObject[10];
 	private GameObject[] hand = new GameObject[5];
