@@ -29,11 +29,22 @@ public class Player : MonoBehaviour
 	public enum PlayerPhase
 	{
 		Start,
+		MayBeMove,
 		Move,
 		Play,
 		Attack,
 		End
 	};
+
+	public enum  ClickPhase
+	{
+		Zero,
+		First,		// Show Path
+		Second,		// moving
+		Third,		// Show Attack
+		Fourth,		// attacking
+	};
+
 	public enum MovePhase
 	{
 
@@ -55,10 +66,12 @@ public class Player : MonoBehaviour
 	private int mMouseX;							//MouseOnTile info on X
 	private int mMouseY;							//MouseOnTile info on Y
 	public int curTarget;
+	int mMouseClickPhase = 0;
+	bool mClick =true;
 
 	//Tracking current Spot//
-	public int mPrevPositionX;						//Previous TileMap Position X
-	public int mPrevPositionY;                  	//Previous TileMap Position Y
+	public int mStorePositionX;						//Previous TileMap Position X
+	public int mStorePositionY;                  	//Previous TileMap Position Y
 	public int mPositionX;							//Current TileMap Position X
 	public int mPositionY;							//Current TileMap Position Y
 	
@@ -103,13 +116,19 @@ public class Player : MonoBehaviour
 		mMouseY = mMouse.mMouseHitY;
 		//
 		mPlayerPhase = PlayerPhase.Start;
+		mClick = true;
 		mMoved = false;
 		mPlayed = false;
-		mTurn = true;
+		mTurn = false;
 		Debug.Log ("Player: Created");
 	}
 	void Update()
 	{
+		if (Input.GetMouseButton (0)) 
+		{
+			mMouseClickPhase++;
+
+		}
 		//Manager Loop
 		if(!mManager)
 		{
@@ -165,27 +184,42 @@ public class Player : MonoBehaviour
 		{
 			Travel(mMouseX, mMouseY);	
 		}
-		if(Input.GetKey ("e"))
-		{
-			ResetPath ();
-			Teleport (mPrevPositionX, mPrevPositionY);
+		if(Input.GetMouseButtonDown(0))
+		{	
+			if(Input.GetMouseButtonUp(0))
+			{
+				if(mClick)
+				{
+					mMouseClickPhase++;
+				}
+			}
 		}
 	}
-
+	IEnumerator WaitAndPrint(float waitTime)
+	{
+		yield return new WaitForSeconds(waitTime);
+	}
+	
+	
 	public bool UpdatePlayer()
 	{
+		WaitAndPrint (2.0f);
 		switch (mPlayerPhase)
 		{
 			case PlayerPhase.Start:
 			UpdateStart ();
 				break;
 			case PlayerPhase.Move:
+			UpdateMove ();
 				break;
 			case PlayerPhase.Attack:
 				break;
 			case PlayerPhase.Play:
 				break;
 			case PlayerPhase.End:
+				break;
+			case PlayerPhase.MayBeMove:
+				UpdateMayBeMove();
 				break;
 			default:
 				Debug.Log ("Player:Unknown state!");
@@ -195,80 +229,120 @@ public class Player : MonoBehaviour
 	}
 	void UpdateStart ()
 	{
-		//Debug.Log ("Player::StateStart");
+
+		Debug.Log ("Player::StateStart");
 		if(mMoved==false)
 		{
 			FindWalkRange ();	//FInd all walkable Tiles
 		}
-		if (Input.GetMouseButtonDown (0))
+		else
 		{
-			Debug.Log("Player::FirstClick");
-			DTileMap.TileType temp=mTileMap.MapInfo.GetTileType(mMouseX, mMouseY);
-			switch((int)temp)
-			{
-			case 0:
-				Debug.Log ("Player::Floor(out of range)");
-				break;
-			case 1:
-				Debug.Log ("Player::Walkable");
-				if(mMoved == false)
-				{
-					int tempx = mMouseX;
-					int tempy = mMouseY;
-					PathFind( mPositionX, mPositionY, mMouseX, mMouseY);
-					if (Input.GetMouseButtonDown (0)&& tempx == mMouseX && tempy == mMouseY)
-					{
-						mPlayerPhase = PlayerPhase.Move;
-						Debug.Log ("Player::StateMove");
-					}
-				}
-				break;			
-			case 2:
-				Debug.Log ("Player::Path");
-				break;
-			case 3:
-				Debug.Log ("Player::Wall");
-				break;
-			case 4:
-				Debug.Log ("Player::Sewer");
-				break;
-			case 5:
-				Debug.Log ("Player::Building");
-				break;
-			case 6:
-				Debug.Log ("Player::Player1");
-				break;
-			case 7:
-				Debug.Log ("Player::Player2");
-				break;
-			case 8:
-				Debug.Log ("Player::Player3");
-				break;
-			case 9:
-				Debug.Log ("Player::Player4");
-				break;
-			case 10:
-				Debug.Log ("Player::Target1");
-				break;
-			case 11:
-				Debug.Log ("Player::Target2");
-				break;
-			case 12:
-				Debug.Log ("Player::Target3");
-				break;
-			case 13:			//Transfer to Sewer EndTurn
-				Debug.Log ("Player::TrueSewer");
+			ResetWalkRange ();
+			ResetPath();
+		}
 
-				break;
-			case 14:			//Nothing Happen
-				Debug.Log ("Player::TargetSpot");
-				break;
+		if(Input.GetMouseButton(0))
+		{	
+			mStorePositionX = mMouseX;
+			mStorePositionY = mMouseY;
+			DTileMap.TileType temp=mTileMap.MapInfo.GetTileType(mStorePositionX, mStorePositionY);
+				switch((int)temp)
+				{
+				case 0:
+					Debug.Log ("Player::Floor(out of range) "+mMouseClickPhase);
+					mMouseClickPhase = 0;
+					mClick = true;
+					break;
+				case 1:
+					Debug.Log ("Player::Walkable");
+					if(mMoved == false)
+					{
+						mPlayerPhase = PlayerPhase.MayBeMove;
+					}
+					
+					break;			
+				case 2:
+					Debug.Log ("Player::Path");
+					break;
+				case 3:
+					Debug.Log ("Player::Wall");
+					break;
+				case 4:
+					Debug.Log ("Player::Sewer");
+					break;
+				case 5:
+					Debug.Log ("Player::Building");
+					break;
+				case 6:
+					Debug.Log ("Player::Player1");
+					break;
+				case 7:
+					Debug.Log ("Player::Player2");
+					break;
+				case 8:
+					Debug.Log ("Player::Player3");
+					break;
+				case 9:
+					Debug.Log ("Player::Player4");
+					break;
+				case 10:
+					Debug.Log ("Player::Target1");
+					break;
+				case 11:
+					Debug.Log ("Player::Target2");
+					break;
+				case 12:
+					Debug.Log ("Player::Target3");
+					break;
+				case 13:			//Transfer to Sewer EndTurn
+					Debug.Log ("Player::TrueSewer");
+			
+					break;
+				case 14:			//Nothing Happen
+					Debug.Log ("Player::TargetSpot");
+					break;
 			}
+		}
+		else if(Input.GetKey ("/"))
+		{
+			mPlayerPhase = PlayerPhase.End;
 		}
 	}
 	void UpdateMove()
 	{
+		Debug.Log ("Player::StateMove");
+		Travel (mStorePositionX, mStorePositionY);
+		mMoved = true;
+		mPlayerPhase = PlayerPhase.Start;
+	}
 
+	void UpdateMayBeMove()
+	{
+		Debug.Log ("Player::StatePath");
+		if(Input.GetMouseButton(0))
+		{
+			DTileMap.TileType temp=mTileMap.MapInfo.GetTileType(mMouseX, mMouseY);
+			if(temp==DTileMap.TileType.Walkable)
+			{
+				mStorePositionX = mMouseX;
+				mStorePositionY = mMouseY;
+			}
+		}
+		PathFind( mPositionX, mPositionY, mStorePositionX, mStorePositionY);
+		if(mMouseY==mStorePositionY && mMouseX==mStorePositionX&& Input.GetMouseButton(1))
+		{
+			mPlayerPhase = PlayerPhase.Move;
+		}
+		if (Input.GetKey ("backspace")) 
+		{
+			ResetPath ();
+			mPlayerPhase = PlayerPhase.Start;
+		}
+	}
+	void UpdateEnd()
+	{
+		Debug.Log ("PlayerTurn Ended");
+		mTurn = true;
 	}
 	public void FindWalkRange()
 	{
@@ -285,7 +359,7 @@ public class Player : MonoBehaviour
 			}
 			if(temp==DTileMap.TileType.Sewer)
 			{
-				mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.Walkable);
+				mTileMap.MapInfo.SetTileTypeIndex(index,DTileMap.TileType.TrueSewer);
 			}
 		}
 	}
@@ -308,8 +382,6 @@ public class Player : MonoBehaviour
 	{
 		mTileMap.MapInfo.SetTileType(mPositionX,mPositionY, DTileMap.TileType.Floor);
 		PathFind (mPositionX, mPositionY, TileX, TileY);
-		mPrevPositionX = mPositionX;
-		mPrevPositionY = mPositionY;
 		Teleport(TileX, TileY);
 	}
 
@@ -371,7 +443,7 @@ public class Player : MonoBehaviour
 				mTileMap.MapInfo.SetTileTypeIndex (x, DTileMap.TileType.Floor);
 			}
 		}
-		Debug.Log ("Player: Walk Range Reset");
+		//Debug.Log ("Player: Walk Range Reset");
 	}
 	//added this to try to fix some issues
 	void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
