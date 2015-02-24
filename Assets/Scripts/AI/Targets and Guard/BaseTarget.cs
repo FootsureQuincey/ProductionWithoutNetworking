@@ -22,6 +22,7 @@ public class BaseTarget : MonoBehaviour
 	//State Currently in
 	private State mState;
 	//Imformation Checking for the Game
+	public Transform curTargetNode;
 	TileMap mTileMap;
 	TileMapMouse mMouse;
 	GameObject mTileMapObject;
@@ -136,7 +137,8 @@ public class BaseTarget : MonoBehaviour
 		mTileMap = mTileMapObject.GetComponent<TileMap>();
 		mMouseX = mMouse.mMouseHitX;
 		mMouseY = mMouse.mMouseHitY;
-
+		Vector3 temp = mTileMap.MapInfo.GetTileLocation (mTowardNodeX, mTowardNodeY);
+		curTargetNode.position = temp; 
 		if (Input.GetKeyDown ("b"))
 		{
 			UpdateTarget();
@@ -182,15 +184,12 @@ public class BaseTarget : MonoBehaviour
 			//Decide on a Path;
 			PathDecision (true);
 			//Find Target Node path;
-			mTowardPath = PathFind (mPositionX, mPositionY, mTowardNodeX, mTowardNodeY);
-			Debug.Log("CurrentChoice : " + mTowardChoice);
+			//Debug.Log("CurrentChoice : " + mTowardChoice);
 			mWalkPathTrue = true;
 		}
 		//Find Range, and find current path
-		mCurrentPath = PathFindRange (ref mTowardPath, mMovement);
-		//Find x,y to travel to spot
-		int indexCount = mCurrentPath.Count;
-		int index = mCurrentPath [indexCount - 1].mIndex;
+		mTowardPath = PathFind (mPositionX, mPositionY, mTowardNodeX, mTowardNodeY);
+		int index = PathFindRange (ref mTowardPath, mMovement);
 		int tempX = 0;
 		int tempY = 0;
 		mTileMap.MapInfo.IndexToXY (index, out tempX, out tempY);
@@ -218,14 +217,12 @@ public class BaseTarget : MonoBehaviour
 			//Decide on a Path;
 			PathDecision (false);
 			//Find Target Node path;
-			mTowardPath = PathFind (mPositionX, mPositionY, mTowardNodeX, mTowardNodeY);
+
 			Debug.Log("CurrentChoice : " + mTowardChoice);
 			mRunPathTrue = true;
 		}
-		mCurrentPath = PathFindRange (ref mTowardPath, mRunMovement);
-		//Find x,y to travel to spot
-		int indexCount = mCurrentPath.Count;
-		int index = mCurrentPath [indexCount - 1].mIndex;
+		mTowardPath = PathFind (mPositionX, mPositionY, mTowardNodeX, mTowardNodeY);
+		int index = PathFindRange (ref mTowardPath, mRunMovement);
 		int tempX = 0;
 		int tempY = 0;
 		mTileMap.MapInfo.IndexToXY (index, out tempX, out tempY);
@@ -325,10 +322,10 @@ public class BaseTarget : MonoBehaviour
 		{
 			//mCloseList = mSearch.GetCloseList();
 			Path= mSearch.GetPathList();
-			foreach(Node i in Path)
-			{
-				mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Path);
-			}
+			//foreach(Node i in Path)
+			//{
+			//	mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Path);
+			//}
 		}
 		else
 		{
@@ -336,38 +333,24 @@ public class BaseTarget : MonoBehaviour
 		}
 		return Path;
 	}	
-	List<Node> PathFindRange(ref List<Node> totalPath, int range)
+	int PathFindRange(ref List<Node> totalPath, int range)
 	{
 		List<Node> Path = new List<Node>();
 		if (totalPath.Count <= range) 
 		{
-			totalPath.Reverse ();
-			return totalPath;
+			return totalPath[totalPath.Count-1].mIndex;
 		}
 		else
 		{
-			int temp = totalPath.Count-range;
-			for (int i=(totalPath.Count-1); i>=temp; i--)
+			foreach (Node i in totalPath)
 			{
-				Path.Add (totalPath[i]);
-				totalPath.RemoveAt (i);
+				if(i.g == range)
+				{
+					return i.mIndex;
+				}
 			}
-			foreach(Node i in Path)
-			{
-				mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,DTileMap.TileType.Path);
-			}
-			return Path;
 		}
-
-		//foreach(Node i in totalPath)
-		//{
-		//
-		//}
-		//foreach(Node i in Path)
-		//{
-		//	mTileMap.MapInfo.SetTileTypeIndex(i.mIndex,1);
-		//}
-		return Path;
+		return 0;
 	}	
 	void ResetPath(ref List<Node> Path)
 	{

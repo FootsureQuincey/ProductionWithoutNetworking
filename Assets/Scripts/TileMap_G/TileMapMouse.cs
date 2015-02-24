@@ -4,6 +4,7 @@ using System.Collections;
 [RequireComponent(typeof(TileMap))]
 public class TileMapMouse : MonoBehaviour {
 
+	public bool cubeActive = true;
 	public int mMouseHitX;
 	public int mMouseHitY;
 	public Vector3 mMousePosition;
@@ -29,6 +30,7 @@ public class TileMapMouse : MonoBehaviour {
 		RaycastHit hitInfo;
 		if( collider.Raycast( ray, out hitInfo, Mathf.Infinity ) )
 		{	
+			cubeActive = true;
 			selectionCube.renderer.enabled = true;
 			int x = Mathf.FloorToInt( hitInfo.point.x / _tileMap.tileSize);
 			int z = Mathf.FloorToInt( hitInfo.point.z / _tileMap.tileSize);
@@ -48,6 +50,7 @@ public class TileMapMouse : MonoBehaviour {
 			//mMousePosition=currentTileCoord*_tileMap.tileSize+ new Vector3(0.5f,0.0f,0.5f);
 			//selectionCube.transform.position = mMousePosition;
 			selectionCube.renderer.enabled = false;
+			cubeActive = false;
 			// Hide selection cube?
 		}
 	}

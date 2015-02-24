@@ -125,6 +125,7 @@ public class GameManager : MonoBehaviour
 				p.mMoved = false;
 				p.mPlayed = false;
 				p.mTurn = false;
+				p.mPlayerPhase = Player.PlayerPhase.Start;
 				//p.mHand.PlayedCard = false;
 				sPlayersTurn++;
 				Debug.Log(sPlayersTurn);
