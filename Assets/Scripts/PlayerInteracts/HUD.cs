@@ -11,7 +11,7 @@ public class HUD : MonoBehaviour
 	public GUITexture bar, backbar, turns, stats;
 	public GUITexture combar, atkbar, defbar, atkprt, defprt, cardslots;
 	public GUIText str, def, mov, inf;
-
+	public bool combui = false;
 	//Jack
 	//So the ints are player 0,1,2,3
 	// and the targets are 4,5,6,7,8
@@ -21,7 +21,7 @@ public class HUD : MonoBehaviour
 	//--------------------//
 	//privates
 	private int decksize, cdel;
-	private baseCharacter ch;
+	//private baseCharacter ch;
 	private GameObject[] discard = new GameObject[10];
 	private GameObject[] cards = new GameObject[10];
 	private GameObject[] hand = new GameObject[5];
@@ -29,7 +29,6 @@ public class HUD : MonoBehaviour
 	private int cardsDealt = 0;
 	private bool[] cs = new bool[3];
 	private bool showR = false;
-	private bool combui = false;
 	private int attackeratk, attackerdef, defenderatk, defenderdef, bartotal, barpercent;
 	
 	//wyatt
@@ -415,7 +414,7 @@ public class HUD : MonoBehaviour
 			RaycastHit hit;
 			if (Physics.Raycast(ray, out hit))			
 			{ 
-				Debug.Log("clicked it");
+				//Debug.Log("clicked it");
 				
 				if(hit.collider.CompareTag("Card"))
 				{

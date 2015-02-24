@@ -31,7 +31,7 @@ public class DTileMap
 		Walkable,	//1
 		Path,		//2
 		Wall,		//3
-		Shop,		//4
+		Sewer,		//4
 		Buildings,	//5		
 		Player1,	//6
 		Player2,   	//7
@@ -39,7 +39,9 @@ public class DTileMap
 		Player4,	//9
     	Target1,	//10
 		Target2,	//11
-		Target3		//12
+		Target3,	//12
+		TrueSewer,	//13
+		TargetSpot,	//14
 	};
 	public void CreateMap(int sizex, int sizey)
 	{
