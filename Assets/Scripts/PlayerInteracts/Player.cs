@@ -36,19 +36,14 @@ public class Player : MonoBehaviour
 		End
 	};
 
-	public enum  ClickPhase
-	{
-		Zero,
-		First,		// Show Path
-		Second,		// moving
-		Third,		// Show Attack
-		Fourth,		// attacking
-	};
-
-	public enum MovePhase
-	{
-
-	}
+	//public enum  ClickPhase
+	//{
+	//	Zero,
+	//	First,		// Show Path
+	//	Second,		// moving
+	//	Third,		// Show Attack
+	//	Fourth,		// attacking
+	//};
 	//Information needed in the game 
 	public BaseCharacter mCharacter;				//Character base stats
 	private TileMap mTileMap;						//TileMap information
@@ -184,16 +179,16 @@ public class Player : MonoBehaviour
 		{
 			Travel(mMouseX, mMouseY);	
 		}
-		if(Input.GetMouseButtonDown(0))
-		{	
-			if(Input.GetMouseButtonUp(0))
-			{
-				if(mClick)
-				{
-					mMouseClickPhase++;
-				}
-			}
-		}
+		//if(Input.GetMouseButtonDown(0))
+		//{	
+		//	if(Input.GetMouseButtonUp(0))
+		//	{
+		//		if(mClick)
+		//		{
+		//			mMouseClickPhase++;
+		//		}
+		//	}
+		//}
 	}
 	IEnumerator WaitAndPrint(float waitTime)
 	{
@@ -207,16 +202,17 @@ public class Player : MonoBehaviour
 		switch (mPlayerPhase)
 		{
 			case PlayerPhase.Start:
-			UpdateStart ();
+				UpdateStart ();
 				break;
 			case PlayerPhase.Move:
-			UpdateMove ();
+				UpdateMove ();
 				break;
 			case PlayerPhase.Attack:
 				break;
 			case PlayerPhase.Play:
 				break;
 			case PlayerPhase.End:
+				UpdateEnd ();
 				break;
 			case PlayerPhase.MayBeMove:
 				UpdateMayBeMove();
@@ -259,16 +255,15 @@ public class Player : MonoBehaviour
 					{
 						mPlayerPhase = PlayerPhase.MayBeMove;
 					}
-					
 					break;			
 				case 2:
-					Debug.Log ("Player::Path");
+					Debug.Log ("Player::Path: Invalid");
 					break;
 				case 3:
-					Debug.Log ("Player::Wall");
+					Debug.Log ("Player::Wall: Can't travel");
 					break;
 				case 4:
-					Debug.Log ("Player::Sewer");
+					Debug.Log ("Player::Sewer: out of range");
 					break;
 				case 5:
 					Debug.Log ("Player::Building");
@@ -296,14 +291,14 @@ public class Player : MonoBehaviour
 					break;
 				case 13:			//Transfer to Sewer EndTurn
 					Debug.Log ("Player::TrueSewer");
-			
+					TravelSewer (mStorePositionX, mStorePositionY);
 					break;
 				case 14:			//Nothing Happen
 					Debug.Log ("Player::TargetSpot");
 					break;
 			}
 		}
-		else if(Input.GetKey ("/"))
+		else if(Input.GetKey ("backspace"))
 		{
 			mPlayerPhase = PlayerPhase.End;
 		}
@@ -333,7 +328,7 @@ public class Player : MonoBehaviour
 		{
 			mPlayerPhase = PlayerPhase.Move;
 		}
-		if (Input.GetKey ("backspace")) 
+		if (Input.GetKey ("e")) 
 		{
 			ResetPath ();
 			mPlayerPhase = PlayerPhase.Start;
@@ -393,6 +388,12 @@ public class Player : MonoBehaviour
 		mPositionY=TileY;
 		mTileMap.MapInfo.SetTileType(mPositionX,mPositionY,mPlayerIndex);
 	}
+	void TravelToSewer(int TileX, int TileY)
+	{
+		mTileMap.MapInfo.SetTileType(mPositionX,mPositionY, DTileMap.TileType.Floor);
+		PathFind (mPositionX, mPositionY, TileX, TileY);
+
+	}
 	
 	void PathFind(int startX, int startY, int endX, int endY)
 	{
@@ -444,6 +445,25 @@ public class Player : MonoBehaviour
 			}
 		}
 		//Debug.Log ("Player: Walk Range Reset");
+	}
+
+	void AnchorbeardActive()
+	{
+		//Still need to discard a card
+		int hookamount = 3;
+		int rightX = mPositionX + 3;
+		int rightY = mPositionY;
+		int leftX = mPositionX - 3;
+		int leftY = mPositionY;
+		int upX = mPositionX;
+		int upY = mPositionY + 3;
+		int downX = mPositionX;
+		int downY = mPositiionY - 3;
+		DTileMap.TileType hookRight = mTileMap.MapInfo.GetTileType (rightX, rightY);
+		DTileMap.TileType hookLeft = mTileMap.MapInfo.GetTileType (leftX, leftY);
+		DTileMap.TileType hookUp = mTileMap.MapInfo.GetTileType (upX, upY);
+		DTileMap.TileType hookDown = mTileMap.MapInfo.GetTileType (downX, downY);
+		//if(hookUpRight==DTileMap.TileType.)
 	}
 	//added this to try to fix some issues
 	void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
