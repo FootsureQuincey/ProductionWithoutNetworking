@@ -198,7 +198,6 @@ public class Player : MonoBehaviour
 	
 	public bool UpdatePlayer()
 	{
-		WaitAndPrint (2.0f);
 		switch (mPlayerPhase)
 		{
 			case PlayerPhase.Start:
@@ -237,7 +236,7 @@ public class Player : MonoBehaviour
 			ResetPath();
 		}
 
-		if(Input.GetMouseButton(0))
+		if(Input.GetMouseButtonDown(0))
 		{	
 			mStorePositionX = mMouseX;
 			mStorePositionY = mMouseY;
@@ -291,7 +290,7 @@ public class Player : MonoBehaviour
 					break;
 				case 13:			//Transfer to Sewer EndTurn
 					Debug.Log ("Player::TrueSewer");
-					TravelSewer (mStorePositionX, mStorePositionY);
+					//TravelSewer (mStorePositionX, mStorePositionY);
 					break;
 				case 14:			//Nothing Happen
 					Debug.Log ("Player::TargetSpot");
@@ -314,21 +313,21 @@ public class Player : MonoBehaviour
 	void UpdateMayBeMove()
 	{
 		Debug.Log ("Player::StatePath");
-		if(Input.GetMouseButton(0))
+		PathFind( mPositionX, mPositionY, mStorePositionX, mStorePositionY);
+		if(Input.GetMouseButtonDown(0) &&mMouseY!=mStorePositionY && mMouseX!=mStorePositionX)
 		{
 			DTileMap.TileType temp=mTileMap.MapInfo.GetTileType(mMouseX, mMouseY);
-			if(temp==DTileMap.TileType.Walkable)
+			if(temp==DTileMap.TileType.Walkable && temp==DTileMap.TileType.Walkable)
 			{
 				mStorePositionX = mMouseX;
 				mStorePositionY = mMouseY;
 			}
 		}
-		PathFind( mPositionX, mPositionY, mStorePositionX, mStorePositionY);
-		if(mMouseY==mStorePositionY && mMouseX==mStorePositionX&& Input.GetMouseButton(1))
+		else if(mMouseY==mStorePositionY && mMouseX==mStorePositionX&& Input.GetMouseButtonDown(0))
 		{
 			mPlayerPhase = PlayerPhase.Move;
 		}
-		if (Input.GetKey ("e")) 
+		else if(Input.GetMouseButtonDown(1))
 		{
 			ResetPath ();
 			mPlayerPhase = PlayerPhase.Start;
@@ -458,7 +457,7 @@ public class Player : MonoBehaviour
 		int upX = mPositionX;
 		int upY = mPositionY + 3;
 		int downX = mPositionX;
-		int downY = mPositiionY - 3;
+		int downY = mPositionY - 3;
 		DTileMap.TileType hookRight = mTileMap.MapInfo.GetTileType (rightX, rightY);
 		DTileMap.TileType hookLeft = mTileMap.MapInfo.GetTileType (leftX, leftY);
 		DTileMap.TileType hookUp = mTileMap.MapInfo.GetTileType (upX, upY);
